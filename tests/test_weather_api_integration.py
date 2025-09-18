@@ -50,6 +50,7 @@ async def test_weather_feature_integration_success():
             entities = {"location": "Berlin"}
             result = await handle_weather_intent(mock_message, entities)
 
-            expected_message = "The weather in Berlin is currently Clouds (overcast clouds) with a temperature of 15.5°C."
+            # The mock still provides an english description, which will be capitalized.
+            expected_message = "Погода в городе Berlin: Overcast clouds. Температура: 15.5°C."
             assert result == expected_message
             mock_get.assert_called_once()

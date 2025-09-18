@@ -69,22 +69,33 @@ async def test_message_handler_weather_intent(mock_handle_weather, mock_detect_i
     mock_message.answer.assert_called_once_with("Weather in Berlin is sunny.")
 
 @pytest.mark.asyncio
-@patch('bot.handlers.detect_intent', new_callable=AsyncMock)
+@patch('bot.handlers.add_to_user_history')
+@patch('bot.handlers.get_user_history')
 @patch('bot.handlers.get_conversational_response', new_callable=AsyncMock)
-async def test_message_handler_unknown_intent(mock_get_conv_response, mock_detect_intent):
+@patch('bot.handlers.detect_intent', new_callable=AsyncMock)
+async def test_message_handler_unknown_intent(mock_detect_intent, mock_get_conv_response, mock_get_history, mock_add_history):
     """
     Tests the message handler with an 'unknown' intent, which should trigger the conversational fallback.
     """
+    # Setup mocks
     mock_detect_intent.return_value = {"intent": "unknown", "entities": {}}
+    mock_get_history.return_value = [] # Start with an empty history
     mock_get_conv_response.return_value = "This is a conversational response."
 
     mock_message = create_mock_message("Some random text")
+    user_id = mock_message.from_user.id
+    user_text = mock_message.text
+    bot_response = "This is a conversational response."
 
+    # Call the handler
     await message_handler(mock_message)
 
-    mock_detect_intent.assert_called_once_with("Some random text")
-    mock_get_conv_response.assert_called_once_with("Some random text")
-    mock_message.answer.assert_called_once_with("This is a conversational response.")
+    # Assertions
+    mock_detect_intent.assert_called_once_with(user_text)
+    mock_get_history.assert_called_once_with(user_id)
+    mock_get_conv_response.assert_called_once_with(user_text, []) # Called with empty history
+    mock_add_history.assert_called_once_with(user_id, user_text, bot_response)
+    mock_message.answer.assert_called_once_with(bot_response)
 
 @pytest.mark.asyncio
 async def test_process_callback_query():

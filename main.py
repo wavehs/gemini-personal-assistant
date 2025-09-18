@@ -33,6 +33,10 @@ async def main():
     from bot.handlers import router as bot_router
     dp.include_router(bot_router)
 
+    # Setup and start the scheduler
+    from scheduler.scheduler import setup_scheduler
+    setup_scheduler(bot)
+
     # Start polling
     try:
         await dp.start_polling(bot)

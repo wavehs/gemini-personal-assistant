@@ -1,0 +1,18 @@
+{
+    "123": {
+        "history": [
+            {
+                "role": "user",
+                "parts": [
+                    "Some random text"
+                ]
+            },
+            {
+                "role": "model",
+                "parts": [
+                    "This is a conversational response."
+                ]
+            }
+        ]
+    }
+}

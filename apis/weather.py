@@ -13,7 +13,8 @@ async def get_weather(location: str) -> str:
     params = {
         "q": location,
         "appid": api_key,
-        "units": "metric"  # Use Celsius
+        "units": "metric",  # Use Celsius
+        "lang": "ru"        # Get description in Russian
     }
 
     async with aiohttp.ClientSession() as session:
@@ -23,13 +24,16 @@ async def get_weather(location: str) -> str:
 
                 data = await response.json()
 
-                main_weather = data.get("weather", [{}])[0].get("main", "N/A")
-                description = data.get("weather", [{}])[0].get("description", "N/A")
-                temp = data.get("main", {}).get("temp", "N/A")
+                description = data.get("weather", [{}])[0].get("description", "нет данных")
+                temp = data.get("main", {}).get("temp", "??")
 
-                return f"The weather in {location} is currently {main_weather} ({description}) with a temperature of {temp}°C."
+                # Capitalize the first letter of the description
+                description = description.capitalize()
+
+                return f"Погода в городе {location}: {description}. Температура: {temp}°C."
 
         except aiohttp.ClientError as e:
-            return f"Error fetching weather data: {e}"
+            # Provide error messages in Russian
+            return f"Ошибка при запросе погоды: {e}"
         except Exception as e:
             return f"An unexpected error occurred: {e}"
