@@ -14,5 +14,5 @@ async def handle_weather_intent(entities: dict) -> str:
     if not location:
         return "I need a location to check the weather. For example: 'What's the weather in Paris?'"
 
-    weather_report = get_weather(location)
+    weather_report = await get_weather(location)
     return weather_report
