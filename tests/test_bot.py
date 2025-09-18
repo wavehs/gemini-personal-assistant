@@ -35,7 +35,7 @@ async def test_command_start_handler():
 
     mock_message.answer.assert_called_once()
     call_args = mock_message.answer.call_args[0][0]
-    assert f"Hello, {mock_message.from_user.full_name}!" in call_args
+    assert f"Здравствуйте, {mock_message.from_user.full_name}!" in call_args
 
 @pytest.mark.asyncio
 async def test_command_help_handler():
@@ -47,7 +47,7 @@ async def test_command_help_handler():
     await command_help_handler(mock_message)
 
     mock_message.answer.assert_called_once()
-    assert "How can I help you today?" in mock_message.answer.call_args[0][0]
+    assert "Чем я могу вам помочь?" in mock_message.answer.call_args[0][0]
     assert isinstance(mock_message.answer.call_args[1]['reply_markup'], InlineKeyboardMarkup)
 
 @pytest.mark.asyncio
@@ -65,23 +65,26 @@ async def test_message_handler_weather_intent(mock_handle_weather, mock_detect_i
     await message_handler(mock_message)
 
     mock_detect_intent.assert_called_once_with("What's the weather in Berlin?")
-    mock_handle_weather.assert_called_once_with({"location": "Berlin"})
+    mock_handle_weather.assert_called_once_with(mock_message, {"location": "Berlin"})
     mock_message.answer.assert_called_once_with("Weather in Berlin is sunny.")
 
 @pytest.mark.asyncio
 @patch('bot.handlers.detect_intent', new_callable=AsyncMock)
-async def test_message_handler_unknown_intent(mock_detect_intent):
+@patch('bot.handlers.get_conversational_response', new_callable=AsyncMock)
+async def test_message_handler_unknown_intent(mock_get_conv_response, mock_detect_intent):
     """
-    Tests the message handler with an 'unknown' intent.
+    Tests the message handler with an 'unknown' intent, which should trigger the conversational fallback.
     """
     mock_detect_intent.return_value = {"intent": "unknown", "entities": {}}
+    mock_get_conv_response.return_value = "This is a conversational response."
 
     mock_message = create_mock_message("Some random text")
 
     await message_handler(mock_message)
 
     mock_detect_intent.assert_called_once_with("Some random text")
-    mock_message.answer.assert_called_once_with("I'm not sure how to handle that.")
+    mock_get_conv_response.assert_called_once_with("Some random text")
+    mock_message.answer.assert_called_once_with("This is a conversational response.")
 
 @pytest.mark.asyncio
 async def test_process_callback_query():
@@ -94,7 +97,7 @@ async def test_process_callback_query():
 
     mock_callback_query.answer.assert_called_once()
     mock_callback_query.message.edit_text.assert_called_once_with(
-        "You selected the option: feature_weather. Feature coming soon!"
+        "Вы выбрали: feature_weather. Эта функция скоро появится!"
     )
 
 def test_create_main_menu_keyboard():
