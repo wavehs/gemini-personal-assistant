@@ -2,6 +2,17 @@ import pytest
 import os
 from unittest.mock import patch, MagicMock, AsyncMock
 from features.weather_feature import handle_weather_intent
+from aiogram.types import User, Chat, Message
+
+# Helper to create a mock message
+def create_mock_message(text: str) -> MagicMock:
+    mock_message = MagicMock(spec=Message)
+    mock_message.from_user = User(id=123, is_bot=False, first_name="Test", last_name="User")
+    mock_message.chat = Chat(id=456, type="private")
+    mock_message.text = text
+    mock_message.answer = AsyncMock()
+    return mock_message
+
 
 @pytest.mark.asyncio
 async def test_weather_feature_integration_success():
@@ -27,6 +38,8 @@ async def test_weather_feature_integration_success():
     async def __aexit__(*args, **kwargs):
         pass
 
+    mock_message = create_mock_message("weather in berlin")
+
     # Patch os.getenv to return a dummy API key
     with patch.dict(os.environ, {"OPENWEATHER_API_KEY": "test_key"}):
         # Patch the session.get method to return our mock context manager
@@ -35,7 +48,7 @@ async def test_weather_feature_integration_success():
             mock_get.return_value.__aexit__ = __aexit__
 
             entities = {"location": "Berlin"}
-            result = await handle_weather_intent(entities)
+            result = await handle_weather_intent(mock_message, entities)
 
             expected_message = "The weather in Berlin is currently Clouds (overcast clouds) with a temperature of 15.5°C."
             assert result == expected_message

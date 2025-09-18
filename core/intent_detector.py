@@ -24,10 +24,13 @@ The "intent" should be one of the following:
 - 'pantry_add': for adding items to a pantry list.
 - 'pantry_remove': for removing items from a pantry list.
 - 'pantry_list': for listing items in the pantry.
+- 'set_city': for setting the user's default city for weather.
+- 'news': for getting the latest news headlines.
 - 'unknown': if the intent cannot be determined.
 
 The "entities" should be a dictionary of extracted information.
-For 'weather', the entity is 'location'.
+For 'weather' or 'set_city', the entity is 'location'.
+For 'news', the entity is 'category' (e.g., 'world', 'technology').
 For 'create_event', the entities are 'title' and 'datetime'.
 For 'commute', the entities are 'origin' and 'destination'.
 For 'pantry_add' or 'pantry_remove', the entity is 'item'.
@@ -35,6 +38,9 @@ For 'pantry_add' or 'pantry_remove', the entity is 'item'.
 Here are some examples:
 User: "What's the weather like in London?"
 {"intent": "weather", "entities": {"location": "London"}}
+
+User: "Какие сейчас новости в мире технологий?"
+{"intent": "news", "entities": {"category": "technology"}}
 
 User: "Add milk to my pantry"
 {"intent": "pantry_add", "entities": {"item": "milk"}}
@@ -44,6 +50,9 @@ User: "How do I get from home to work?"
 
 User: "Schedule a meeting with John tomorrow at 2pm"
 {"intent": "create_event", "entities": {"title": "meeting with John", "datetime": "tomorrow at 2pm"}}
+
+User: "Запомни мой город - Санкт-Петербург"
+{"intent": "set_city", "entities": {"location": "Санкт-Петербург"}}
 """
 
 async def detect_intent(text: str) -> dict:
@@ -55,7 +64,7 @@ async def detect_intent(text: str) -> dict:
 
     try:
         full_prompt = f"{INTENT_PROMPT}\nUser: \"{text}\"\n"
-        response = model.generate_content(full_prompt)
+        response = await model.generate_content_async(full_prompt)
 
         # Clean up the response to extract the JSON part
         json_response_str = response.text.strip().replace('```json', '').replace('```', '').strip()
