@@ -77,3 +77,15 @@ python main.py
 ```
 
 The bot will start polling for new messages. You can interact with it in your Telegram client.
+
+### Testing the Assistant Directly
+
+A script `test_assistant.py` is provided to allow you to test the assistant's core functionality directly from your command line, without needing to interact with the Telegram bot. This is useful for quick checks and debugging.
+
+To run the test script:
+
+```sh
+python test_assistant.py
+```
+
+You can then type messages and see the assistant's responses in your terminal.
