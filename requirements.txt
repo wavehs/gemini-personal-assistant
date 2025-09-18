@@ -6,6 +6,8 @@ requests
 aiohttp
 apscheduler
 google-generativeai
+beautifulsoup4
+lxml
 
 # Testing
 pytest

@@ -1,12 +1,16 @@
 import os
 import google.generativeai as genai
 import json
+from core.assistant_prompt import ASSISTANT_PROMPT
 
 # It's recommended to load the API key once and reuse the client
 try:
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-    # Initialize the generative model
-    model = genai.GenerativeModel('models/gemini-1.5-flash-latest')
+    # Initialize the generative model with a system instruction for persona
+    model = genai.GenerativeModel(
+        'models/gemini-1.5-flash-latest',
+        system_instruction=ASSISTANT_PROMPT
+    )
 except Exception as e:
     print(f"Error configuring Gemini API: {e}")
     model = None

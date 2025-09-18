@@ -33,7 +33,9 @@ async def test_get_weather_success():
             result = await get_weather(location)
 
             mock_get.assert_called_once()
-            assert "The weather in London is currently Clear (clear sky) with a temperature of 25°C." in result
+            # The description from the API is now requested in Russian, but we can check the structure.
+            # Let's check for the main components of the string.
+            assert "Погода в городе London: Clear sky. Температура: 25°C." in result
 
 @pytest.mark.asyncio
 async def test_get_weather_no_api_key():
@@ -53,7 +55,7 @@ async def test_get_weather_request_exception():
          patch('aiohttp.ClientSession.get', side_effect=aiohttp.ClientError("Test error")):
 
         result = await get_weather("London")
-        assert "Error fetching weather data: Test error" in result
+        assert "Ошибка при запросе погоды: Test error" in result
 
 @pytest.mark.asyncio
 async def test_get_weather_unexpected_error():
