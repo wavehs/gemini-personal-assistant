@@ -6,7 +6,7 @@ import json
 try:
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
     # Initialize the generative model
-    model = genai.GenerativeModel('gemini-pro')
+    model = genai.GenerativeModel('models/gemini-pro')
 except Exception as e:
     print(f"Error configuring Gemini API: {e}")
     model = None
