@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, AsyncMock
 
 from features.weather_feature import handle_weather_intent
 
@@ -9,7 +9,7 @@ async def test_handle_weather_intent_with_location():
     Tests the handle_weather_intent function with a valid location.
     """
     # Mock the get_weather function
-    with patch('features.weather_feature.get_weather') as mock_get_weather:
+    with patch('features.weather_feature.get_weather', new_callable=AsyncMock) as mock_get_weather:
         # Configure the mock to return a specific value
         mock_get_weather.return_value = "Mocked weather for London"
 
@@ -28,7 +28,7 @@ async def test_handle_weather_intent_without_location():
     Tests the handle_weather_intent function without a location.
     """
     # Mock the get_weather function
-    with patch('features.weather_feature.get_weather') as mock_get_weather:
+    with patch('features.weather_feature.get_weather', new_callable=AsyncMock) as mock_get_weather:
         entities = {} # No location provided
         result = await handle_weather_intent(entities)
 

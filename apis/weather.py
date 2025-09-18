@@ -1,7 +1,7 @@
 import os
-import requests
+import aiohttp
 
-def get_weather(location: str) -> str:
+async def get_weather(location: str) -> str:
     """
     Fetches the current weather for a given location from OpenWeatherMap.
     """
@@ -16,19 +16,20 @@ def get_weather(location: str) -> str:
         "units": "metric"  # Use Celsius
     }
 
-    try:
-        response = requests.get(base_url, params=params)
-        response.raise_for_status()  # Raise an exception for bad status codes
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(base_url, params=params) as response:
+                response.raise_for_status()  # Raise an exception for bad status codes
 
-        data = response.json()
+                data = await response.json()
 
-        main_weather = data.get("weather", [{}])[0].get("main", "N/A")
-        description = data.get("weather", [{}])[0].get("description", "N/A")
-        temp = data.get("main", {}).get("temp", "N/A")
+                main_weather = data.get("weather", [{}])[0].get("main", "N/A")
+                description = data.get("weather", [{}])[0].get("description", "N/A")
+                temp = data.get("main", {}).get("temp", "N/A")
 
-        return f"The weather in {location} is currently {main_weather} ({description}) with a temperature of {temp}°C."
+                return f"The weather in {location} is currently {main_weather} ({description}) with a temperature of {temp}°C."
 
-    except requests.exceptions.RequestException as e:
-        return f"Error fetching weather data: {e}"
-    except Exception as e:
-        return f"An unexpected error occurred: {e}"
+        except aiohttp.ClientError as e:
+            return f"Error fetching weather data: {e}"
+        except Exception as e:
+            return f"An unexpected error occurred: {e}"
