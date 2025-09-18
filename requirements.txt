@@ -1,0 +1,11 @@
+aiogram
+python-dotenv
+google-api-python-client
+google-auth-oauthlib
+requests
+apscheduler
+google-generativeai
+
+# Testing
+pytest
+pytest-asyncio
