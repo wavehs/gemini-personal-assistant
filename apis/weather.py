@@ -28,6 +28,11 @@ def get_weather(location: str) -> str:
 
         return f"The weather in {location} is currently {main_weather} ({description}) with a temperature of {temp}°C."
 
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 404:
+            return f"Sorry, I couldn't find the weather for {location}. Please check the location and try again."
+        else:
+            return f"Error fetching weather data: {e}"
     except requests.exceptions.RequestException as e:
         return f"Error fetching weather data: {e}"
     except Exception as e:

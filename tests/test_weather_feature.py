@@ -22,6 +22,8 @@ async def test_handle_weather_intent_with_location():
         # Assert that the function returns the mocked value
         assert result == "Mocked weather for London"
 
+import requests
+
 @pytest.mark.asyncio
 async def test_handle_weather_intent_without_location():
     """
@@ -37,3 +39,28 @@ async def test_handle_weather_intent_without_location():
 
         # Assert that the function returns the expected message
         assert "I need a location" in result
+
+
+@pytest.mark.asyncio
+@patch('apis.weather.os.getenv')
+@patch('apis.weather.requests.get')
+async def test_handle_weather_intent_with_nonexistent_location(mock_requests_get, mock_getenv):
+    """
+    Tests the handle_weather_intent function with a non-existent location
+    that results in a 404 error.
+    """
+    # Mock os.getenv to return a dummy API key
+    mock_getenv.return_value = "dummy_api_key"
+
+    # Configure the mock to simulate a 404 Not Found response
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError(response=mock_response)
+    mock_requests_get.return_value = mock_response
+
+    # The location can be anything, as the API call is mocked
+    entities = {"location": "InvalidCity"}
+    result = await handle_weather_intent(entities)
+
+    # Assert that the friendly error message is returned
+    assert "Sorry, I couldn't find the weather for InvalidCity" in result
